@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Personalized Prayer Card Maker - ClearFileCo</title><style>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Recordatorio de Funeral · Tarjeta de Oración - ClearFileCo</title><style>
 :root{--navy:#1F3864;--ink:#1E2430;--muted:#5B6470;--line:#D9DEE5;--bg:#F7F5F0;--card:#fff;--teal:#1F6F8B}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 header{background:var(--navy);color:#fff;padding:18px 16px}header .in{max-width:1100px;margin:0 auto}
@@ -31,24 +31,24 @@ details.cm-moreblock[open] summary{margin-bottom:10px}
 footer{max-width:1100px;margin:0 auto;padding:6px 16px 40px;font-size:13px;color:var(--muted)}
 </style></head>
 <body>
-<header><div class="in"><h1>Personalized Prayer Card Maker</h1><p>Make a finished funeral prayer card in a few minutes: choose a design, add the photo, type the name and dates, pick the prayer for the back, then download a print-ready PDF.</p></div></header>
+<header><div class="in"><h1>Recordatorio de Funeral · Tarjeta de Oración</h1><p>Haga recordatorios con foto en español en unos minutos: elija un diseño, agregue la foto, escriba el nombre y las fechas, elija una oración para el reverso y descargue un PDF listo para imprimir. / Make Spanish prayer cards in a few minutes: choose a design, add the photo, type the name and dates, pick a prayer, download a print-ready PDF.</p></div></header>
 <div class="wrap">
   <div class="pv"><div class="panel">
     <div id="cm-sides"></div>
-    <div id="cm-preview"><canvas id="cm-canvas" width="300" height="500" aria-label="Preview of your prayer card"></canvas></div>
-    <div class="cm-help">Preview updates as you type. Drag the photo to position it.</div>
+    <div id="cm-preview"><canvas id="cm-canvas" width="300" height="500" aria-label="Preview of your recordatorio"></canvas></div>
+    <div class="cm-help">La vista previa cambia mientras escribe. Arrastre la foto para acomodarla. / Preview updates as you type. Drag the photo to position it.</div>
   </div></div>
   <div><div class="panel">
-    <div id="cm-loading">Loading the designs and fonts...</div>
+    <div id="cm-loading">Cargando los diseños... / Loading the designs...</div>
     <div id="cm-form"></div>
-    <h3 class="cm-sec">Download</h3>
+    <h3 class="cm-sec">Descargar / Download</h3>
     <div id="cm-exports"></div>
-    <div id="cm-busy" style="display:none">Making your file... this takes a few seconds.</div>
-    <p class="note">Your photo and words stay on this device; nothing is uploaded. Your entries are saved in this browser, so you can come back and change them. Stuck? Message ClearFileCo on Etsy (Purchases and reviews &gt; this order &gt; Message seller) and we will help.</p>
+    <div id="cm-busy" style="display:none">Creando su archivo... tarda unos segundos. / Making your file...</div>
+    <p class="note">Su foto y sus palabras se quedan en este dispositivo; no se sube nada. Se guardan en este navegador para que pueda volver y cambiarlas. ¿Necesita ayuda? Escríbanos en Etsy (Compras y reseñas &gt; este pedido &gt; Enviar mensaje). / Your photo and words stay on this device; nothing is uploaded. Stuck? Message ClearFileCo on Etsy.</p>
   </div></div>
 </div>
-<footer>For ClearFileCo customers. Designs &copy; ClearFileCo. Prayers and poems are traditional or in the public domain, or written for ClearFileCo.</footer>
+<footer>Para clientes de ClearFileCo. Diseños &copy; ClearFileCo. Las oraciones y los poemas son tradicionales, de dominio público o escritos para ClearFileCo. / For ClearFileCo customers.</footer>
 <script src="cm-pdf-lib.min.js"></script>
 <script src="cm-engine.js?v=12"></script>
-<script>CM.start({spec:'cm-prayer.json?v=12',verses:'cm-verses.json?v=12'}).catch(function(e){document.getElementById('cm-loading').textContent="Sorry, the maker could not load (%s). Please refresh, or message ClearFileCo on Etsy.".replace(/%s/g, e.message);});</script>
+<script>CM.start({spec:'cm-recordatorio.json?v=12',verses:'cm-verses-es.json?v=12'}).catch(function(e){document.getElementById('cm-loading').textContent="No se pudo cargar (%s). Actualice la p\u00e1gina o escr\u00edbanos en Etsy. / The maker could not load (%s). Please refresh.".replace(/%s/g, e.message);});</script>
 </body></html>

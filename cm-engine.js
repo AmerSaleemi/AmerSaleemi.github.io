@@ -38,10 +38,11 @@
   function T(k) { return (spec && spec.ui && spec.ui[k] != null) ? spec.ui[k] : UI[k]; }
   function pron(t) {
     var her = S.values.pronoun !== 'his';
-    // also: Arabic suffixes in the transliterated du'a ({hu}, {hi}), Irish 'a {anam}' (her soul = a hanam), pets ({dog})
-    var m = her ? {him: 'her', he: 'she', his: 'her', Him: 'Her', He: 'She', His: 'Her', hu: 'ha', hi: 'ha', anam: 'hanam', dog: 'girl'}
-                : {him: 'him', he: 'he', his: 'his', Him: 'Him', He: 'He', His: 'His', hu: 'hu', hi: 'hi', anam: 'anam', dog: 'boy'};
-    return String(t || '').replace(/\{(him|he|his|Him|He|His|hu|hi|anam|dog)\}/g, function (_, k) { return m[k]; });
+    // also: Arabic suffixes in the transliterated du'a ({hu}, {hi}), Irish 'a {anam}' (her soul = a hanam), pets ({dog}),
+    // Spanish: {el} ella / él, {El}, {o} hija / hijo, {lo} la / lo
+    var m = her ? {him: 'her', he: 'she', his: 'her', Him: 'Her', He: 'She', His: 'Her', hu: 'ha', hi: 'ha', anam: 'hanam', dog: 'girl', el: 'ella', El: 'Ella', o: 'a', lo: 'la'}
+                : {him: 'him', he: 'he', his: 'his', Him: 'Him', He: 'He', His: 'His', hu: 'hu', hi: 'hi', anam: 'anam', dog: 'boy', el: 'él', El: 'Él', o: 'o', lo: 'lo'};
+    return String(t || '').replace(/\{(him|he|his|Him|He|His|hu|hi|anam|dog|el|El|o|lo)\}/g, function (_, k) { return m[k]; });
   }
   function val(bind) {
     var c = spec.computed && spec.computed[bind];
@@ -472,7 +473,7 @@
     var a = el('a', {href: URL.createObjectURL(blob), download: name}); document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
   }
-  function slug() { return (val(spec.fileNameFrom || 'name') || spec.id).replace(/[^\w]+/g, '_').replace(/^_|_$/g, '').slice(0, 40) || spec.id; }
+  function slug() { return (val(spec.fileNameFrom || 'name') || spec.id).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w]+/g, '_').replace(/^_|_$/g, '').slice(0, 40) || spec.id; }
   async function doExport(x) {
     var sz = size(), ps = pages(), dpi = x.dpi || sz.dpi || 300;
     var noPhoto = spec.fields.some(function (f) { return f.type === 'photo' && !f.optional && !(S.photos[f.id] && S.photos[f.id].img); });
