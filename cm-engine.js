@@ -171,8 +171,9 @@
   // ------------------------------------------------------------------ photos
   var phImg = null;
   function drawPhoto(ctx, e, ppi, preview) {
-    var x = e.x * ppi, y = e.y * ppi, w = e.w * ppi, h = e.h * ppi, ph = S.photos[e.bind];
-    ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+    var x = e.x * ppi, y = e.y * ppi, w = e.w * ppi, h = e.h * ppi, ph = S.photos[e.bind], round = e.shape === 'circle';
+    var outline = function () { ctx.beginPath(); if (round) ctx.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, Math.PI * 2); else ctx.rect(x, y, w, h); };
+    ctx.save(); outline(); ctx.clip();
     if (ph && ph.img) {
       var iw = ph.img.naturalWidth || ph.img.width, ih = ph.img.naturalHeight || ph.img.height;
       var s = Math.max(w / iw, h / ih) * ph.zoom, dw = iw * s, dh = ih * s;
@@ -182,7 +183,7 @@
     } else if (S.placeholder) {
       var pi = S.placeholder, ps = Math.max(w / pi.width, h / pi.height);
       ctx.drawImage(pi, x + (w - pi.width * ps) / 2, y + (h - pi.height * ps) / 2, pi.width * ps, pi.height * ps);
-      if (preview) { ctx.fillStyle = '#6b6357'; ctx.font = fontCss('LA', Math.max(9, w * 0.075)); var t0 = T('add_photo'), tw0 = ctx.measureText(t0).width; ctx.fillText(t0, x + (w - tw0) / 2, y + h * 0.93); }
+      if (preview) { ctx.fillStyle = '#6b6357'; ctx.font = fontCss('LA', Math.max(9, w * 0.075)); var t0 = T('add_photo'), tw0 = ctx.measureText(t0).width; ctx.fillText(t0, x + (w - tw0) / 2, y + h * (round ? 0.84 : 0.93)); }
     } else {
       var d = design();
       ctx.fillStyle = d.bg || '#f4f1ea'; ctx.fillRect(x, y, w, h);
@@ -193,7 +194,7 @@
       if (preview) { ctx.fillStyle = d.ink || '#333'; ctx.font = fontCss('LA', Math.max(9, w * 0.075)); var t = T('add_photo'), tw = ctx.measureText(t).width; ctx.fillText(t, x + (w - tw) / 2, y + h * 0.66); }
     }
     ctx.restore();
-    if (e.border && e.bw) { ctx.strokeStyle = e.border; ctx.lineWidth = e.bw * PT * ppi; ctx.strokeRect(x, y, w, h); }
+    if (e.border && e.bw) { ctx.strokeStyle = e.border; ctx.lineWidth = e.bw * PT * ppi; outline(); ctx.stroke(); }
   }
 
   // ------------------------------------------------------------------ pages
