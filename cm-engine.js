@@ -25,8 +25,10 @@
   function pages() { return spec.pages[S.size][S.design]; }
   function pron(t) {
     var her = S.values.pronoun !== 'his';
-    var m = her ? {him: 'her', he: 'she', his: 'her', Him: 'Her', He: 'She', His: 'Her'} : {him: 'him', he: 'he', his: 'his', Him: 'Him', He: 'He', His: 'His'};
-    return String(t || '').replace(/\{(him|he|his|Him|He|His)\}/g, function (_, k) { return m[k]; });
+    // also: Arabic suffixes in the transliterated du'a ({hu}, {hi}), Irish 'a {anam}' (her soul = a hanam), pets ({dog})
+    var m = her ? {him: 'her', he: 'she', his: 'her', Him: 'Her', He: 'She', His: 'Her', hu: 'ha', hi: 'ha', anam: 'hanam', dog: 'girl'}
+                : {him: 'him', he: 'he', his: 'his', Him: 'Him', He: 'He', His: 'His', hu: 'hu', hi: 'hi', anam: 'anam', dog: 'boy'};
+    return String(t || '').replace(/\{(him|he|his|Him|He|His|hu|hi|anam|dog)\}/g, function (_, k) { return m[k]; });
   }
   function val(bind) {
     var c = spec.computed && spec.computed[bind];
@@ -323,6 +325,9 @@
       var inp = document.querySelector('[data-f="' + f.id + '"] input[type=text], [data-f="' + f.id + '"] textarea');
       if (inp) inp.value = shown(f.id);
     });
+    // verse names in the list follow the pronoun too ("Remember Him / Her in Your Du'a")
+    var vs = document.getElementById('cm-verse');
+    if (vs) [].forEach.call(vs.querySelectorAll('option'), function (o) { var v = vmap[o.value]; if (v) o.textContent = pron(v.title); });
   }
   function applyDesignDefaults(d) {
     var df = d.defaults || {};
