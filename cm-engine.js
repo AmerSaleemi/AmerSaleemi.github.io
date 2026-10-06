@@ -23,6 +23,19 @@
   function design() { for (var i = 0; i < spec.designs.length; i++) if (spec.designs[i].id === S.design) return spec.designs[i]; return spec.designs[0]; }
   function size() { for (var i = 0; i < spec.sizes.length; i++) if (spec.sizes[i].id === S.size) return spec.sizes[i]; return spec.sizes[0]; }
   function pages() { return spec.pages[S.size][S.design]; }
+  // user-facing words; a spec can override any of them (spec.ui) for a Spanish or bilingual maker
+  var UI = {
+    front: 'Front', back: 'Back', outside: 'Outside', inside: 'Inside', add_photo: 'Add a photo', zoom: 'Zoom', more: 'More options',
+    opening: 'Opening your photo...', photo_added: 'Photo added. Drag it on the preview to position it.',
+    photo_reused: 'Using the photo you added last time. Choose a new file to change it.',
+    photo_help: 'Drag the photo on the preview to position it. Your photo stays on your device; nothing is uploaded.',
+    photo_bad: 'Sorry, that photo could not be opened here. Please choose a JPG or PNG photo.\n\nIf it is an iPhone photo (HEIC), open this page in Safari, or save the photo as a JPG first.',
+    your_own: 'Your own', write_own: 'Write my own words', no_verse: 'No verse', title_opt: 'Title (optional)',
+    verse_ph: 'Type the prayer, poem or verse. For a poem, put each line on its own line and leave a blank line between verses.',
+    source_opt: 'Source or author (optional)', no_photo: 'No photo added yet. Download without a photo?',
+    error: 'Sorry, something went wrong making the file: {m}\nPlease message us on Etsy and we will make it for you.'
+  };
+  function T(k) { return (spec && spec.ui && spec.ui[k] != null) ? spec.ui[k] : UI[k]; }
   function pron(t) {
     var her = S.values.pronoun !== 'his';
     // also: Arabic suffixes in the transliterated du'a ({hu}, {hi}), Irish 'a {anam}' (her soul = a hanam), pets ({dog})
@@ -169,7 +182,7 @@
     } else if (S.placeholder) {
       var pi = S.placeholder, ps = Math.max(w / pi.width, h / pi.height);
       ctx.drawImage(pi, x + (w - pi.width * ps) / 2, y + (h - pi.height * ps) / 2, pi.width * ps, pi.height * ps);
-      if (preview) { ctx.fillStyle = '#6b6357'; ctx.font = fontCss('LA', Math.max(9, w * 0.075)); var t0 = 'Add a photo', tw0 = ctx.measureText(t0).width; ctx.fillText(t0, x + (w - tw0) / 2, y + h * 0.93); }
+      if (preview) { ctx.fillStyle = '#6b6357'; ctx.font = fontCss('LA', Math.max(9, w * 0.075)); var t0 = T('add_photo'), tw0 = ctx.measureText(t0).width; ctx.fillText(t0, x + (w - tw0) / 2, y + h * 0.93); }
     } else {
       var d = design();
       ctx.fillStyle = d.bg || '#f4f1ea'; ctx.fillRect(x, y, w, h);
@@ -177,7 +190,7 @@
       ctx.beginPath(); ctx.arc(x + w / 2, y + h * 0.40, w * 0.18, 0, Math.PI * 2); ctx.fill();
       ctx.beginPath(); ctx.ellipse(x + w / 2, y + h * 0.92, w * 0.36, h * 0.30, 0, Math.PI, 0); ctx.fill();
       ctx.globalAlpha = 1;
-      if (preview) { ctx.fillStyle = d.ink || '#333'; ctx.font = fontCss('LA', Math.max(9, w * 0.075)); var t = 'Add a photo', tw = ctx.measureText(t).width; ctx.fillText(t, x + (w - tw) / 2, y + h * 0.66); }
+      if (preview) { ctx.fillStyle = d.ink || '#333'; ctx.font = fontCss('LA', Math.max(9, w * 0.075)); var t = T('add_photo'), tw = ctx.measureText(t).width; ctx.fillText(t, x + (w - tw) / 2, y + h * 0.66); }
     }
     ctx.restore();
     if (e.border && e.bw) { ctx.strokeStyle = e.border; ctx.lineWidth = e.bw * PT * ppi; ctx.strokeRect(x, y, w, h); }
@@ -229,7 +242,7 @@
     if (curSide >= ps.length) curSide = 0;
     tabs.innerHTML = '';
     if (ps.length > 1) ps.forEach(function (p, i) {
-      tabs.appendChild(el('button', {type: 'button', class: 'cm-tab' + (i === curSide ? ' on' : ''), text: p.label || (p.side.charAt(0).toUpperCase() + p.side.slice(1)), onclick: function () { curSide = i; refresh(); }}));
+      tabs.appendChild(el('button', {type: 'button', class: 'cm-tab' + (i === curSide ? ' on' : ''), text: p.label || (UI[p.side] ? T(p.side) : p.side.charAt(0).toUpperCase() + p.side.slice(1)), onclick: function () { curSide = i; refresh(); }}));
     });
     var page = ps[curSide], cv = $('cm-canvas'), maxW = wrapEl.clientWidth || 360, vh = viewH || window.innerHeight,
       maxH = window.innerWidth < 900 ? Math.max(300, vh * 0.5) : Math.max(320, vh * 0.62);
@@ -329,6 +342,11 @@
     var vs = document.getElementById('cm-verse');
     if (vs) [].forEach.call(vs.querySelectorAll('option'), function (o) { var v = vmap[o.value]; if (v) o.textContent = pron(v.title); });
   }
+  function applySizeDefaults(sz) {
+    var df = (sz && sz.defaults) || {};
+    Object.keys(df).forEach(function (k) { if (!S.touched[k]) S.values[k] = df[k]; });
+    syncInputs();
+  }
   function applyDesignDefaults(d) {
     var df = d.defaults || {};
     Object.keys(df).forEach(function (k) { if (!S.touched[k]) S.values[k] = df[k]; });
@@ -375,7 +393,7 @@
       box.appendChild(lab); box.appendChild(row); return box;
     }
     if (f.type === 'size') {
-      var sel = el('select', {onchange: function () { S.size = this.value; save(); buildExports(); applyVisibility(); refresh(); }});
+      var sel = el('select', {onchange: function () { S.size = this.value; applySizeDefaults(size()); save(); buildExports(); applyVisibility(); refresh(); }});
       spec.sizes.forEach(function (s) { var o = el('option', {value: s.id, text: s.label}); if (s.id === S.size) o.selected = true; sel.appendChild(o); });
       box.appendChild(lab); box.appendChild(sel); if (help) box.appendChild(help); return box;
     }
@@ -386,20 +404,20 @@
       S.photoUI[f.id] = {zoom: zoom, stat: stat, input: inp};
       inp.addEventListener('change', function () {
         var file = inp.files && inp.files[0]; if (!file) return;
-        stat.textContent = 'Opening your photo...';
+        stat.textContent = T('opening');
         loadPhoto(f.id, file, null).then(function () {
-          stat.textContent = 'Photo added. Drag it on the preview to position it.';
+          stat.textContent = T('photo_added');
           idbPut(spec.id + ':' + f.id, file);
         }, function () {
           inp.value = '';
           stat.textContent = '';
-          alert('Sorry, that photo could not be opened here. Please choose a JPG or PNG photo.\n\nIf it is an iPhone photo (HEIC), open this page in Safari, or save the photo as a JPG first.');
+          alert(T('photo_bad'));
         });
       });
       zoom.addEventListener('input', function () { var p = S.photos[f.id]; if (p) { p.zoom = parseFloat(zoom.value); savePos(); refresh(); } });
       box.appendChild(lab); box.appendChild(inp); box.appendChild(stat);
-      box.appendChild(el('div', {class: 'cm-zoomrow'}, [el('span', {text: 'Zoom'}), zoom]));
-      box.appendChild(el('div', {class: 'cm-help', text: f.help || 'Drag the photo on the preview to position it. Your photo stays on your device; nothing is uploaded.'}));
+      box.appendChild(el('div', {class: 'cm-zoomrow'}, [el('span', {text: T('zoom')}), zoom]));
+      box.appendChild(el('div', {class: 'cm-help', text: f.help || T('photo_help')}));
       return box;
     }
     if (f.type === 'choice') {
@@ -416,14 +434,14 @@
         groups[g].forEach(function (v) { var o = el('option', {value: v.id, text: pron(v.title)}); if (v.id === S.values.verse) o.selected = true; og.appendChild(o); });
         vs.appendChild(og);
       });
-      var oc = el('optgroup', {label: 'Your own'});
-      oc.appendChild(el('option', {value: '__custom', text: 'Write my own words'}));
-      if (f.allowNone) oc.appendChild(el('option', {value: '__none', text: 'No verse'}));
+      var oc = el('optgroup', {label: T('your_own')});
+      oc.appendChild(el('option', {value: '__custom', text: T('write_own')}));
+      if (f.allowNone) oc.appendChild(el('option', {value: '__none', text: T('no_verse')}));
       vs.appendChild(oc); vs.value = S.values.verse;
       var custom = el('div', {class: 'cm-custom', style: S.values.verse === '__custom' ? '' : 'display:none'}, [
-        el('input', {type: 'text', placeholder: 'Title (optional)', value: S.values.verse_custom_title || '', oninput: function () { setVal('verse_custom_title', this.value); }}),
-        el('textarea', {rows: '6', placeholder: 'Type the prayer, poem or verse. For a poem, put each line on its own line and leave a blank line between verses.', oninput: function () { setVal('verse_text', this.value); }}, []),
-        el('input', {type: 'text', placeholder: 'Source or author (optional)', value: S.values.verse_source || '', oninput: function () { setVal('verse_source', this.value); }})
+        el('input', {type: 'text', placeholder: T('title_opt'), value: S.values.verse_custom_title || '', oninput: function () { setVal('verse_custom_title', this.value); }}),
+        el('textarea', {rows: '6', placeholder: T('verse_ph'), oninput: function () { setVal('verse_text', this.value); }}, []),
+        el('input', {type: 'text', placeholder: T('source_opt'), value: S.values.verse_source || '', oninput: function () { setVal('verse_source', this.value); }})
       ]);
       custom.children[1].value = S.values.verse_text || '';
       box.appendChild(lab); box.appendChild(vs); box.appendChild(custom); if (help) box.appendChild(help); return box;
@@ -439,7 +457,7 @@
     spec.fields.forEach(function (f) {
       if (f.section) { form.appendChild(el('h3', {class: 'cm-sec', text: f.section})); return; }
       if (f.more && !more) {
-        more = el('details', {class: 'cm-moreblock'}, [el('summary', {text: spec.moreLabel || 'More options'})]);
+        more = el('details', {class: 'cm-moreblock'}, [el('summary', {text: spec.moreLabel || T('more')})]);
         form.appendChild(more);
       }
       (f.more ? more : form).appendChild(field(f));
@@ -457,7 +475,7 @@
   async function doExport(x) {
     var sz = size(), ps = pages(), dpi = x.dpi || sz.dpi || 300;
     var noPhoto = spec.fields.some(function (f) { return f.type === 'photo' && !f.optional && !(S.photos[f.id] && S.photos[f.id].img); });
-    if (noPhoto && !confirm('No photo added yet. Download without a photo?')) return;
+    if (noPhoto && !confirm(T('no_photo'))) return;
     var btn = $('cm-busy'); btn.style.display = '';
     var cs = [], extra = [];
     try {
@@ -502,7 +520,7 @@
       var bytes = await doc.save();
       download(new Blob([bytes], {type: 'application/pdf'}), slug() + '_' + spec.id + '_' + x.id + '.pdf');
     } catch (err) {
-      alert('Sorry, something went wrong making the file: ' + err.message + '\nPlease message us on Etsy and we will make it for you.');
+      alert(T('error').replace('{m}', err.message));
     } finally {
       btn.style.display = 'none';
       // free the big canvases now (phones, especially iPhones, cap total canvas memory)
@@ -530,6 +548,7 @@
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem('cm-' + spec.id) || 'null'); if (saved && saved.values) { S.values = Object.assign(S.values, saved.values); if (spec.pages[saved.size]) S.size = saved.size; if (saved.design && spec.pages[S.size][saved.design]) S.design = saved.design; S.touched = saved.touched || {kicker: true, verse: true}; } } catch (e) {}
     var d0 = design(); Object.keys(d0.defaults || {}).forEach(function (k) { if (!S.touched[k] && S.values[k] == null) S.values[k] = d0.defaults[k]; });
+    var s0 = size(); Object.keys(s0.defaults || {}).forEach(function (k) { if (!S.touched[k]) S.values[k] = s0.defaults[k]; });
     var fl = Object.keys(FONTS).map(function (k) { var f = new FontFace('cm' + k, 'url(' + base + 'cm-font-' + FONTS[k] + '.woff2)'); return f.load().then(function (ff) { document.fonts.add(ff); }); });
     await Promise.all(fl);
     await new Promise(function (res) { var pi = new Image(); pi.onload = function () { S.placeholder = pi; res(); }; pi.onerror = function () { res(); }; pi.src = base + 'cm-photo-placeholder.jpg'; });
@@ -540,7 +559,7 @@
       idbGet(spec.id + ':' + f.id).then(function (blob) {
         if (!blob || S.photos[f.id]) return;
         return loadPhoto(f.id, blob, ((saved && saved.photoPos) || {})[f.id]).then(function () {
-          var ui = S.photoUI[f.id]; if (ui) ui.stat.textContent = 'Using the photo you added last time. Choose a new file to change it.';
+          var ui = S.photoUI[f.id]; if (ui) ui.stat.textContent = T('photo_reused');
         });
       }).catch(function () {});
     });
