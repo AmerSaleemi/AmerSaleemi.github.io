@@ -552,7 +552,7 @@
     var s0 = size(); Object.keys(s0.defaults || {}).forEach(function (k) { if (!S.touched[k]) S.values[k] = s0.defaults[k]; });
     var fl = Object.keys(FONTS).map(function (k) { var f = new FontFace('cm' + k, 'url(' + base + 'cm-font-' + FONTS[k] + '.woff2)'); return f.load().then(function (ff) { document.fonts.add(ff); }); });
     await Promise.all(fl);
-    await new Promise(function (res) { var pi = new Image(); pi.onload = function () { S.placeholder = pi; res(); }; pi.onerror = function () { res(); }; pi.src = base + 'cm-photo-placeholder.jpg'; });
+    await new Promise(function (res) { var pi = new Image(); pi.onload = function () { S.placeholder = pi; res(); }; pi.onerror = function () { res(); }; pi.src = base + (spec.placeholder || 'cm-photo-placeholder.jpg'); });
     buildForm(); buildExports(); bindDrag($('cm-canvas'));
     applyVisibility();
     spec.fields.forEach(function (f) {
